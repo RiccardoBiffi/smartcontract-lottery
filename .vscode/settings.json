@@ -1,0 +1,9 @@
+{
+    "solidity.defaultCompiler": "remote",
+    "solidity.compileUsingRemoteVersion": "v0.8.0+commit.c7dfd78e",
+    "solidity.remappings": [ // rimuove highlight da import
+        "@chainlink-brownie/=/Users/biffi/.brownie/packages/smartcontractkit/chainlink-brownie-contracts@0.2.1",
+        "@chainlink/=/Users/biffi/.brownie/packages/smartcontractkit/chainlink@1.2.1",
+        "@openzeppelin/=/Users/biffi/.brownie/packages/OpenZeppelin/openzeppelin-contracts@4.5.0"
+    ]
+}
