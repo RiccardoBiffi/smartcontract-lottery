@@ -26,7 +26,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
     // Request
     VRFCoordinatorV2Interface COORDINATOR;
     LinkTokenInterface LINKTOKEN;
-    uint64 subscriptionId; // 2265, sc che genera VRF usando LINK
+    uint64 subscriptionId; // contract che genera VRF usando LINK
     address vrfCoordinator; // address del coordinatore sulla blockchain
     address link; // address del sc LINK sulla blockchain
     bytes32 keyHash; // specifica il gas lane
@@ -40,9 +40,9 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
 
     constructor(
         address _priceFeedAddress,
-        uint64 _subscriptionId,
         address _vrfCoordinator,
         address _link,
+        uint64 _subscriptionId,
         bytes32 _keyhash,
         uint32 _callbackGasLimit,
         uint16 _requestConfirmations,
