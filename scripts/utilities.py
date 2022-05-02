@@ -1,9 +1,4 @@
-from brownie import (
-    Contract,
-    network,
-    accounts,
-    config,
-)
+from brownie import Contract, network, accounts, config, interface
 from brownie import MockV3Aggregator, VRFCoordinatorV2Mock, LinkToken, MockOracle
 from enum import Enum
 
@@ -47,7 +42,7 @@ def get_contract(contract_enum):
     altrimenti, se siamo su una blockchain locale, viene deployato un mock e restituito.
 
     Args:
-        contract_name (string): nome del contratto da ottenere
+        contract_enum (MockContract): enum del contratto da ottenere
 
     Returns:
         brownie.network.contract.ProjectContract : l'ultima versione deployata del contratto,
@@ -57,7 +52,7 @@ def get_contract(contract_enum):
 
     if is_local_blockchain():
         if len(contract_type) == 0:  # contratto mai deployato
-            contract = deploy_mock(contract_enum)
+            deploy_mock(contract_enum)
         contract = contract_type[-1]  # prendo l'ultimo contratto deployato
 
     else:
@@ -93,4 +88,42 @@ def deploy_mock(contract_enum):
         VRFCoordinatorV2Mock.deploy(
             LINK_BASE_FEE, LINK_GAS_PRICE, {"from": get_account()}
         )
-    print(f"Mock deployed!")
+    print(f"Mock {contract_enum.value} deployed!\n")
+
+
+def fund_with_link(
+    contract_address,
+    sub_id,
+    account=None,
+    link_token=None,
+    amount=5 * 10**8 * 10**9,
+):
+    account = account if account else get_account()
+    link_token = link_token if link_token else get_contract(MockContract.LINK_TOKEN)
+
+    # solo se il contratto usato da link non ha una sottoscrizione (V1)
+    # tx = link_token.transfer(contract_address, amount, {"from": account})
+
+    # se il contratto funziona con sottoscrizione (V2) devo crearla e metterci fondi
+    vrf_contract = get_contract(MockContract.VRF_COORDINATOR)
+    fund_receipt = vrf_contract.fundSubscription(sub_id, amount)
+
+    total_funds = fund_receipt.events["SubscriptionFunded"]["newBalance"] / 10**18
+    print(f"Subscription {sub_id} funded with {total_funds} LINKS\n")
+
+
+def get_and_fund_subscription():
+    if is_local_blockchain():
+        # se il contratto funziona con sottoscrizione (V2), devo crearla
+        vrf_contract = get_contract(MockContract.VRF_COORDINATOR)
+        create_receipt = vrf_contract.createSubscription()
+        sub_id = create_receipt.events["SubscriptionCreated"]["subId"]
+
+        amount = 5 * 10**8 * 10**9
+        vrf_contract.fundSubscription(sub_id, amount)
+
+    else:
+        sub_id = config["subscriptions"]["chainlink"]
+        # contratto già fundato da https://vrf.chain.link
+
+    return sub_id

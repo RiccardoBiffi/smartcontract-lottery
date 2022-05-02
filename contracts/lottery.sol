@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.7;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "@chainlink-brownie/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
 import "@chainlink-brownie/contracts/src/v0.8/interfaces/LinkTokenInterface.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
@@ -21,6 +22,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
     address public lastWinner;
 
     AggregatorV3Interface internal ethUsdPriceFeed;
+    event RequestedRandomness(uint256 requestId);
 
     // Proprietà per utilizzare Chainlink VRF
     // Request
@@ -58,6 +60,8 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
         callbackGasLimit = _callbackGasLimit;
         requestConfirmations = _requestConfirmations;
         numWords = _numWords;
+
+        COORDINATOR = VRFCoordinatorV2Interface(vrfCoordinator);
     }
 
     function enter() public payable {
@@ -71,7 +75,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
             string(
                 abi.encodePacked(
                     "Pay at least 50$ worth of ETH (",
-                    entranceFee / 10**9,
+                    Strings.toString(entranceFee / 10**9),
                     " gwei) to enter!"
                 )
             )
@@ -125,6 +129,9 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
             callbackGasLimit,
             numWords
         );
+        // gli eventi sono log sulla blockchain non accessibili agli smart contract
+        // utili sia per debug che per testing
+        emit RequestedRandomness(requestId);
     }
 
     // funzione di callback.

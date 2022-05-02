@@ -1,14 +1,19 @@
 dotenv: .env
+
 wallets:
   from_key: ${PRIVATE_KEY}
+
 subscriptions:
   chainlink: ${CHAINLINK_SUBSCRIPTION_ID}
+
+
 
 dependencies:
   # - <organizzation/repo>@<version> scaricate da GitHub
   - smartcontractkit/chainlink-brownie-contracts@0.2.1
   - smartcontractkit/chainlink@1.2.1
   - OpenZeppelin/openzeppelin-contracts@4.5.0
+
 compiler:
   # spiegare al compiler che @chainlink punta alla dipendenza su GitHub
   solc:
@@ -16,6 +21,8 @@ compiler:
       - '@chainlink-brownie=smartcontractkit/chainlink-brownie-contracts@0.2.1'
       - '@chainlink=smartcontractkit/chainlink@1.2.1'
       - '@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.5.0'
+
+
 
 networks:
   default: development
