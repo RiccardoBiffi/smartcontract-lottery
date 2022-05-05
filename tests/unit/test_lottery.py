@@ -10,7 +10,7 @@ from scripts.utilities import (
     get_contract,
 )
 
-# unit test per le singole funzioni del contract, in development
+# unit test per le singole funzioni del contract, development network
 
 
 def test_get_entrance_fee():
@@ -28,6 +28,50 @@ def test_get_entrance_fee():
     assert entrance_fee == expected_entrance_fee
 
 
+def test_start_success():
+    if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
+        pytest.skip()
+
+    # Arrange
+    account = get_account()
+    lottery = deploy_lottery()
+
+    # Act
+    lottery.startLottery({"from": account})
+
+    # Assert
+    assert lottery.state() == 0
+
+
+def test_start_fail_not_ended():
+    if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
+        pytest.skip()
+
+    # Arrange
+    account = get_account()
+    lottery = deploy_lottery()
+
+    # Act
+    lottery.startLottery({"from": account})
+
+    # Act & Assert
+    with pytest.raises(exceptions.VirtualMachineError):
+        lottery.startLottery({"from": account})
+
+
+def test_start_fail_not_owner():
+    if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
+        pytest.skip()
+
+    # Arrange
+    lottery = deploy_lottery()
+    not_owner = get_account(1)
+
+    # Act & Assert
+    with pytest.raises(exceptions.VirtualMachineError):
+        lottery.startLottery({"from": not_owner})
+
+
 def test_enter_fail_not_started():
     if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
         pytest.skip()
@@ -37,7 +81,7 @@ def test_enter_fail_not_started():
     account = get_account()
     entrance_fee = lottery.getEntranceFee()
 
-    # Act & assert
+    # Act & Assert
     with pytest.raises(exceptions.VirtualMachineError):
         lottery.enter({"from": account, "value": entrance_fee})
 
@@ -73,6 +117,32 @@ def test_enter_success():
     # Assert
     assert lottery.players(0) == account
     assert lottery.state() == 0
+
+
+def test_end_fail_not_owner():
+    if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
+        pytest.skip()
+
+    # Arrange
+    lottery = deploy_lottery()
+    not_owner = get_account(1)
+
+    # Act & Assert
+    with pytest.raises(exceptions.VirtualMachineError):
+        lottery.endLottery({"from": not_owner})
+
+
+def test_end_fail_not_started():
+    if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
+        pytest.skip()
+
+    # Arrange
+    lottery = deploy_lottery()
+    account = get_account()
+
+    # Act & Assert
+    with pytest.raises(exceptions.VirtualMachineError):
+        lottery.endLottery({"from": account})
 
 
 def test_end_success():
@@ -120,7 +190,7 @@ def test_end_correct_winner():
     )
     lottery_balance_after_close = lottery.balance()
     print(f"Admin balance after: {adminAccount.balance()}")
-    winner = get_account(index=2)  # in development il vincitore è sempre lo stesso
+    winner = get_account(index=0)  # in development il vincitore è sempre lo stesso
 
     # Assert
     # ha vinto la persona giusta?
@@ -130,5 +200,5 @@ def test_end_correct_winner():
     # il vincitore ha guadagnato tutta la lotteria?
     assert (
         winner.balance()
-        == starting_balance_of_winner + total_lottery_amount - entrance_fee
+        == starting_balance_of_winner - entrance_fee + total_lottery_amount
     )

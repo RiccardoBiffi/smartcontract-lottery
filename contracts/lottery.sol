@@ -102,7 +102,10 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
     }
 
     function endLottery() public onlyOwner {
-        // Vincitore scelto a random
+        require(
+            state == LOTTERY_STATE.STARTED,
+            "The lottery cannot be ended at this moment"
+        );
 
         state = LOTTERY_STATE.CALCULATING_WINNER;
 
