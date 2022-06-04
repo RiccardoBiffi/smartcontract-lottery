@@ -57,7 +57,12 @@ def end_lottery():
     account = get_account()
     lottery = Lottery[-1]
 
-    lottery.endLottery({"from": account})
+    tx = lottery.endLottery({"from": account})
+    requestId = tx.events["RequestedRandomness"]["requestId"]
+    # simulo il nodo chainlink chiamando fulfillRandomWords, che attiva il mio callback
+    get_contract(MockContract.VRF_COORDINATOR).fulfillRandomWords(
+        requestId, lottery.address, {"from": account}
+    )
     print("The lottery has ended!\n")
     print(f"And the winner is...{lottery.lastWinner()}!!!\n")
 

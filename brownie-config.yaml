@@ -18,7 +18,7 @@ compiler:
   # spiegare al compiler che @chainlink punta alla dipendenza su GitHub
   solc:
     remappings:
-      - '@chainlink-brownie=smartcontractkit/chainlink-brownie-contracts@0.2.1'
+      - '@brownie-cl=smartcontractkit/chainlink-brownie-contracts@0.2.1'
       - '@chainlink=smartcontractkit/chainlink@1.2.1'
       - '@openzeppelin=OpenZeppelin/openzeppelin-contracts@4.5.0'
 

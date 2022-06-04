@@ -176,8 +176,8 @@ def test_end_correct_winner():
     lottery.startLottery({"from": adminAccount})
     entrance_fee = lottery.getEntranceFee()
     lottery.enter({"from": adminAccount, "value": entrance_fee})
-    lottery.enter({"from": get_account(index=1), "value": entrance_fee})
-    lottery.enter({"from": get_account(index=2), "value": entrance_fee})
+    lottery.enter({"from": adminAccount, "value": entrance_fee})
+    lottery.enter({"from": adminAccount, "value": entrance_fee})
     total_lottery_amount = lottery.balance()
 
     # Act
@@ -190,7 +190,7 @@ def test_end_correct_winner():
     )
     lottery_balance_after_close = lottery.balance()
     print(f"Admin balance after: {adminAccount.balance()}")
-    winner = get_account(index=0)  # in development il vincitore è sempre lo stesso
+    winner = adminAccount  # in development il vincitore è sempre lo stesso
 
     # Assert
     # ha vinto la persona giusta?
@@ -200,5 +200,5 @@ def test_end_correct_winner():
     # il vincitore ha guadagnato tutta la lotteria?
     assert (
         winner.balance()
-        == starting_balance_of_winner - entrance_fee + total_lottery_amount
+        == starting_balance_of_winner - (entrance_fee * 3) + total_lottery_amount
     )
