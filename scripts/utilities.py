@@ -56,7 +56,7 @@ def get_contract(contract_enum):
         contract = contract_type[-1]  # prendo l'ultimo contratto deployato
 
     else:
-        # il contratto esiste già nel fork della blockchain
+        # il contratto esiste già nella blockchain (testnet o fork)
         contract_address = config["networks"][network.show_active()][
             contract_enum.value
         ]

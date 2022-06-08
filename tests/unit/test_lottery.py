@@ -161,7 +161,7 @@ def test_end_success():
 
     # Assert
     # la lotteria è finita?
-    assert 2 == 2
+    assert lottery.state() == 2
 
 
 # simile ad un integration test
@@ -189,7 +189,6 @@ def test_end_correct_winner():
         requestId, lottery.address, {"from": adminAccount}
     )
     lottery_balance_after_close = lottery.balance()
-    print(f"Admin balance after: {adminAccount.balance()}")
     winner = adminAccount  # in development il vincitore è sempre lo stesso
 
     # Assert
@@ -202,3 +201,5 @@ def test_end_correct_winner():
         winner.balance()
         == starting_balance_of_winner - (entrance_fee * 3) + total_lottery_amount
     )
+    # il vettore dei partecipanti si è svuotato?
+    assert lottery.getPlayerCount() == 0

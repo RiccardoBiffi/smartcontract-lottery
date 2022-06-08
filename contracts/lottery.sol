@@ -23,6 +23,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
 
     AggregatorV3Interface internal ethUsdPriceFeed;
     event RequestedRandomness(uint256 requestId);
+    event FullfillRandomWordsCalled();
 
     // Proprietà per utilizzare Chainlink VRF
     // Request
@@ -137,9 +138,13 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
         emit RequestedRandomness(requestId);
     }
 
+    function getPlayerCount() public view returns (uint256) {
+        return players.length;
+    }
+
     // funzione di callback.
     // internal così può essere chiamata da ConsumerBaseV2
-    // override perché il metodo fulfillRandomWords è virtual
+    // override perché il metodo fulfillRandomWords di ConsumerBaseV2 è virtual
     function fulfillRandomWords(
         uint256 _requestId,
         uint256[] memory _randomWords
@@ -148,6 +153,7 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
             state == LOTTERY_STATE.CALCULATING_WINNER,
             "The lottery is not calculating the winner."
         );
+        emit FullfillRandomWordsCalled();
         for (uint256 i = 0; i < _randomWords.length; i++) {
             require(_randomWords[i] > 0, "Not random number");
         }

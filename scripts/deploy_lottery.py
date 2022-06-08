@@ -1,7 +1,8 @@
 from sqlite3 import Time
 import time
-from brownie import Lottery, network, config
+from brownie import Lottery, accounts, network, config
 from scripts.utilities import (
+    LOCAL_BLOCKCHAIN_ENVIRONMENTS,
     MockContract,
     get_account,
     get_contract,
@@ -35,6 +36,15 @@ def deploy_lottery():
     )
     print(f"Contratto Lottery deployato all'address {lottery.address} con successo!\n")
 
+    if network.show_active() not in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
+        # devo aggiungere il contract come consumer
+        print("Aggiungo lottery come consumer della sottoscrizione")
+        vrf_coordinator.addConsumer.transact(
+            sub_id,
+            lottery.address,
+            {"from": account},
+        )
+
     return lottery
 
 
@@ -57,12 +67,18 @@ def end_lottery():
     account = get_account()
     lottery = Lottery[-1]
 
-    tx = lottery.endLottery({"from": account})
-    requestId = tx.events["RequestedRandomness"]["requestId"]
-    # simulo il nodo chainlink chiamando fulfillRandomWords, che attiva il mio callback
-    get_contract(MockContract.VRF_COORDINATOR).fulfillRandomWords(
-        requestId, lottery.address, {"from": account}
-    )
+    tx = lottery.endLottery({"from": account, "gasPrice": 100000000000000000})
+
+    if network.show_active() in LOCAL_BLOCKCHAIN_ENVIRONMENTS:
+        # simulo il nodo chainlink chiamando fulfillRandomWords, che attiva il mio callback
+        requestId = tx.events["RequestedRandomness"]["requestId"]
+        get_contract(MockContract.VRF_COORDINATOR).fulfillRandomWords(
+            requestId, lottery.address, {"from": account}
+        )
+    else:
+        # attendo che il network chiami la mia callback
+        time.sleep(120)
+
     print("The lottery has ended!\n")
     print(f"And the winner is...{lottery.lastWinner()}!!!\n")
 

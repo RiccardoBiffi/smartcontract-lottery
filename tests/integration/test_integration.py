@@ -22,7 +22,7 @@ def test_can_pick_winner():
     lottery.endLottery({"from": account})
 
     # aspetta che chainlink chiami la mia callback
-    time.sleep(30)
+    time.sleep(60)
 
     assert lottery.lastWinner == account
     assert lottery.balance() == 0
