@@ -5,7 +5,6 @@ pragma solidity ^0.8.7;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@brownie-cl/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
-import "@brownie-cl/contracts/src/v0.8/interfaces/LinkTokenInterface.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBaseV2.sol";
 
@@ -28,7 +27,6 @@ contract Lottery is VRFConsumerBaseV2, Ownable {
     // Proprietà per utilizzare Chainlink VRF
     // Request
     VRFCoordinatorV2Interface COORDINATOR;
-    LinkTokenInterface LINKTOKEN;
     uint64 subscriptionId; // contract che genera VRF usando LINK
     address vrfCoordinator; // address del coordinatore sulla blockchain
     address link; // address del sc LINK sulla blockchain
